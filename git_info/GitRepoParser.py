@@ -34,7 +34,7 @@ class GitRepoParser:
         for root, _, files in os.walk(self.git_dir):
             for file in files:
                 file_path: str = os.path.join(root, file)
-                rel_path: str = os.path.relpath(file_path, self.git_dir)
+                rel_path: str = os.path.relpath(file_path, self.git_dir).replace("\\", "-") # use hyphens
                 try:
                     with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
                         content: str = f.read()
@@ -59,7 +59,7 @@ class GitRepoParser:
             "FETCH_HEAD": parse_data.get("FETCH_HEAD", "No fetch head found"),
             "HEAD": parse_data.get("HEAD", "No head found"),
             "ORIG_HEAD": parse_data.get("ORIG_HEAD", "No original head found"),
-            "logs\\HEAD": parse_data.get("logs\\HEAD", "No logs\\HEAD"),
+            "logs-HEAD": parse_data.get("logs-HEAD", "No logs-HEAD"),
             # "index": parse_data.get("index", "No index found"),
         }
 
