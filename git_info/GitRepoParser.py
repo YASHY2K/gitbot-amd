@@ -15,7 +15,7 @@ class GitRepoParser:
         self.git_dir: str = os.path.join(repo_path, '.git')
         self.git_data: Dict[str, str] = {}
 
-    def parse(self) -> Optional[Dict[str, str]]:
+    def _parse(self) -> Optional[Dict[str, str]]:
         """
         Parse the .git directory and store the contents of each file.
 
@@ -43,6 +43,28 @@ class GitRepoParser:
                 self.git_data[rel_path] = content
 
         return self.git_data
+    
+
+    def get_attr(self) -> Optional[Dict[str, str]]:
+        """
+        Build new data dict with specific attributes
+
+        Returns:
+            A dictionary mapping relative file paths to their contents, or None
+            if the repository path or .git directory is invalid.
+        """
+        parse_data = self._parse()
+        data: Optional[Dict[str, str]] = {
+            "config": parse_data.get("config", "No config data found"),
+            "FETCH_HEAD": parse_data.get("FETCH_HEAD", "No fetch head found"),
+            "HEAD": parse_data.get("HEAD", "No head found"),
+            "ORIG_HEAD": parse_data.get("ORIG_HEAD", "No original head found"),
+            "logs\\HEAD": parse_data.get("logs\\HEAD", "No logs\\HEAD"),
+            # "index": parse_data.get("index", "No index found"),
+        }
+
+        return data
+
 
     def dump_to_json(self, output_file: str = "git_state.json") -> None:
         """
@@ -65,9 +87,10 @@ class GitRepoParser:
 if __name__ == '__main__':
     repo_path: str = input("Enter the path to your repository: ").strip()
     parser: GitRepoParser = GitRepoParser(repo_path)
-    data: Optional[Dict[str, str]] = parser.parse()
-    if data is not None:
-        parser.dump_to_json()
+    data: Optional[Dict[str, str]] = parser.get_attr()
+    print(data)
+    # if data is not None:
+    #     parser.dump_to_json()
 
 # TODO
 # 1. Instead of dumping it in a json file; write it to a in-memory store like redis
